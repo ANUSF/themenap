@@ -11,8 +11,9 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'nokogiri'
 
-  s.summary     = 'Steals its layout from an external server.'
+  s.summary     = "A Rails engine that 'steals' another application's theme."
   s.description = %q{
-    A Rails engine that downloads its layout from an external server.
+    A Rails engine that 'steals' another application's layout and
+    styling. Just add the gem and their theme is your theme.
   }
 end

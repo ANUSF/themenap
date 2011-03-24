@@ -1,4 +1,9 @@
-A Rails engine that downloads its layout from an external server.
+A Rails engine that 'steals' another application's layout and
+styling. Just add the gem and their theme is your theme.
+
+This is just a proof of concept implementation at this point. The
+layout is always taken from 'http://testada', and there's no smart
+caching, configuration options etc. yet.
 
 
 Licencing
