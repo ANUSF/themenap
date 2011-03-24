@@ -6,8 +6,13 @@ module Themenap
       # -- process the option value passed
       path   = options[:path] || File.join('tmp', 'layouts')
       name   = options[:name] || 'theme.html.erb'
-      y_ield = options[:yield] || 'yield'
-      main   = options[:main] || ''
+
+      snippets = options[:snippets]  || {}
+      yield_main   = snippets[:main]  || 'yield'
+      yield_title  = snippets[:title] || 'yield :title'
+      head_content = snippets[:head]  || ''
+      yield_css    = snippets[:css]   || 'yield :css'
+      yield_js     = snippets[:js]    || 'yield :js'
 
       # -- grab the HTML page from the server and pass it
       response = Net::HTTP.get URI.parse(server_uri)
@@ -22,12 +27,18 @@ module Themenap
       end
 
       # -- turn into a template
-      doc.css('article').each do |article|
-        article.content = "{{= #{y_ield} #{main} }}"
+      doc.css('head').each do |node|
+        node.add_child(Nokogiri::XML::Text.new("\n#{head_content}", doc))
+        node.add_child(Nokogiri::XML::Text.new("\n{{= #{yield_css} }}", doc))
+        node.add_child(Nokogiri::XML::Text.new("\n{{= #{yield_js} }}", doc))
       end
 
       doc.css('title').each do |title|
-        title.content = "{{= #{y_ield} :title }}"
+        title.content = "{{= #{yield_title} }}"
+      end
+
+      doc.css('article').each do |article|
+        article.content = "{{= #{yield_main} }}"
       end
 
       # -- write the result to a file
