@@ -9,6 +9,8 @@ Gem::Specification.new do |s|
   s.files        = Dir.glob('{app,lib,config}/**/*') + %w(MIT-LICENSE)
   s.require_path = 'lib'
 
+  s.add_dependency 'nokogiri'
+
   s.summary     = 'Steals its layout from an external server.'
   s.description = %q{
     A Rails engine that downloads its layout from an external server.

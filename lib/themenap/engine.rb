@@ -1,4 +1,5 @@
 require "themenap"
+require "themenap/nap"
 require "rails"
 
 module Themenap
@@ -13,9 +14,19 @@ module Themenap
       Themenap::Config.dummy = 'test'
     end
 
+    initializer 'themenap.set_view_path' do |app|
+      ActionController::Base.append_view_path(File.join(Rails.root, 'tmp'))
+    end
+
     config.to_prepare do
-      #TODO load and process the theme here
-      ApplicationController.layout 'themenap'
+      Themenap::Nap.new('http://testada')
+      okay = true #TODO actually test if a theme was loaded successfully
+
+      if okay 
+        ApplicationController.layout 'theme'
+      else
+        ApplicationController.layout 'themenap'
+      end
     end
   end
 end
