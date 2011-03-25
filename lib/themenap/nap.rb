@@ -10,6 +10,7 @@ module Themenap
       snippets = options[:snippets]  || {}
       title = encode(snippets[:title] || '<%= yield :title %>')
       head  = encode(snippets[:head]  || '')
+      links = encode(snippets[:links] || '')
       main  = encode(snippets[:main]  || '<%= yield %>')
 
       # -- grab the HTML page from the server and pass it
@@ -25,16 +26,20 @@ module Themenap
       end
 
       # -- turn into a template
-      doc.css('head').each do |node|
-        node.add_child(Nokogiri::XML::Text.new(head, doc))
-      end
-
       doc.css('title').each do |node|
         node.content = title
       end
 
-      doc.css('article').each do |article|
-        article.content = main
+      doc.css('head').each do |node|
+        node.add_child(Nokogiri::XML::Text.new(head, doc))
+      end
+
+      doc.css('nav.subnav').each do |node|
+        node.content = links
+      end
+
+      doc.css('article').each do |node|
+        node.content = main
       end
 
       # -- write the result to a file
