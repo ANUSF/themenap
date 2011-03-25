@@ -2,10 +2,13 @@ require 'nokogiri'
 
 module Themenap
   class Nap
-    def initialize(server_uri, options = {})
+    def initialize(server_base, options = {})
       # -- process the option value passed
-      path   = options[:path] || File.join('tmp', 'layouts')
-      name   = options[:name] || 'theme.html.erb'
+      server_path = options[:server_path] || ''
+      server_uri = server_base + '/' + server_path.sub(/^\//, '')
+
+      path = options[:save_path] || File.join('tmp', 'layouts')
+      name = options[:name] || 'theme.html.erb'
 
       snippets = options[:snippets]  || {}
       title = encode(snippets[:title] || '<%= yield :title %>')
@@ -14,14 +17,13 @@ module Themenap
       main  = encode(snippets[:main]  || '<%= yield %>')
 
       # -- grab the HTML page from the server and pass it
-      response = Net::HTTP.get URI.parse(server_uri)
-      doc = Nokogiri::HTML(response)
+      doc = Nokogiri::HTML fetch(server_uri)
 
       # -- globalize links contained in the document
       ['src', 'href'].each do |attr|
         doc.css("*[#{attr}]").each do |node|
           link = node[attr]
-          node[attr] = "#{server_uri}#{link}" if link.start_with? '/'
+          node[attr] = "#{server_base}#{link}" if link.start_with? '/'
         end
       end
 
@@ -56,6 +58,18 @@ module Themenap
 
     def encode(s)
       s.gsub(/<%/, '{{').gsub(/%>/, '}}')
+    end
+
+    def fetch(uri_str, limit = 10)
+      raise 'HTTP redirect too deep' if limit == 0
+
+      response = Net::HTTP.get_response(URI.parse(uri_str))
+      case response
+      when Net::HTTPSuccess     then response.body
+      when Net::HTTPRedirection then fetch(response['location'], limit - 1)
+      else
+        response.error!
+      end
     end
   end
 end
