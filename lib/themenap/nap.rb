@@ -8,11 +8,9 @@ module Themenap
       name   = options[:name] || 'theme.html.erb'
 
       snippets = options[:snippets]  || {}
-      yield_main   = snippets[:main]  || 'yield'
-      yield_title  = snippets[:title] || 'yield :title'
-      head_content = snippets[:head]  || ''
-      yield_css    = snippets[:css]   || 'yield :css'
-      yield_js     = snippets[:js]    || 'yield :js'
+      title = encode(snippets[:title] || '<%= yield :title %>')
+      head  = encode(snippets[:head]  || '')
+      main  = encode(snippets[:main]  || '<%= yield %>')
 
       # -- grab the HTML page from the server and pass it
       response = Net::HTTP.get URI.parse(server_uri)
@@ -28,24 +26,31 @@ module Themenap
 
       # -- turn into a template
       doc.css('head').each do |node|
-        node.add_child(Nokogiri::XML::Text.new("\n#{head_content}", doc))
-        node.add_child(Nokogiri::XML::Text.new("\n{{= #{yield_css} }}", doc))
-        node.add_child(Nokogiri::XML::Text.new("\n{{= #{yield_js} }}", doc))
+        node.add_child(Nokogiri::XML::Text.new(head, doc))
       end
 
-      doc.css('title').each do |title|
-        title.content = "{{= #{yield_title} }}"
+      doc.css('title').each do |node|
+        node.content = title
       end
 
       doc.css('article').each do |article|
-        article.content = "{{= #{yield_main} }}"
+        article.content = main
       end
 
       # -- write the result to a file
       FileUtils.mkpath(path)
       open(File.join(path, name), 'w') do |fp|
-        fp.write doc.to_html.gsub(/\{\{/, '<%').gsub(/\}\}/, '%>')
+        fp.write decode(doc.to_html)
       end
+    end
+
+    protected
+    def decode(s)
+      s.gsub(/\{\{/, '<%').gsub(/\}\}/, '%>')
+    end
+
+    def encode(s)
+      s.gsub(/<%/, '{{').gsub(/%>/, '}}')
     end
   end
 end
