@@ -19,12 +19,16 @@ module Themenap
     end
 
     config.to_prepare do
-      Themenap::Nap.new('http://testada')
-      okay = true #TODO actually test if a theme was loaded successfully
-
-      if okay 
+      server = 'http://testada'
+      begin
+        Themenap::Nap.new(server).
+          replace('title',   '<%= yield :title %>').
+          #append('head',     '<%= render "layout/includes" %>').
+          replace('article', '<%= yield %>').
+          write_to(File.join('tmp', 'layouts'))
         ApplicationController.layout 'theme'
-      else
+      rescue
+        Rails.logger.error("Couldn't load theme from #{server}.")
         ApplicationController.layout 'themenap'
       end
     end

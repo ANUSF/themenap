@@ -2,52 +2,39 @@ require 'nokogiri'
 
 module Themenap
   class Nap
-    def initialize(server_base, options = {})
-      # -- process the option value passed
-      server_path = options[:server_path] || ''
+    def initialize(server_base, server_path = '')
       server_uri = server_base + '/' + server_path.sub(/^\//, '')
 
-      path = options[:save_path] || File.join('tmp', 'layouts')
-      name = options[:name] || 'theme.html.erb'
-
-      snippets = options[:snippets]  || {}
-      title = encode(snippets[:title] || '<%= yield :title %>')
-      head  = encode(snippets[:head]  || '')
-      links = encode(snippets[:links] || '')
-      main  = encode(snippets[:main]  || '<%= yield %>')
-
-      # -- grab the HTML page from the server and pass it
-      doc = Nokogiri::HTML fetch(server_uri)
+      # -- grab the HTML page from the server and parse it
+      @doc = Nokogiri::HTML fetch(server_uri)
 
       # -- globalize links contained in the document
       ['src', 'href'].each do |attr|
-        doc.css("*[#{attr}]").each do |node|
+        @doc.css("*[#{attr}]").each do |node|
           link = node[attr]
           node[attr] = "#{server_base}#{link}" if link.start_with? '/'
         end
       end
+    end
 
-      # -- turn into a template
-      doc.css('title').each do |node|
-        node.content = title
+    def replace(css, text)
+      @doc.css(css).each do |node|
+        node.content = encode(text)
       end
+      self
+    end
 
-      doc.css('head').each do |node|
-        node.add_child(Nokogiri::XML::Text.new(head, doc))
+    def append(css, text)
+      @doc.css(css).each do |node|
+        node.add_child Nokogiri::XML::Text.new(encode(text), @doc)
       end
+      self
+    end
 
-      doc.css('nav.subnav').each do |node|
-        node.content = links
-      end
-
-      doc.css('article').each do |node|
-        node.content = main
-      end
-
-      # -- write the result to a file
+    def write_to(path = File.join('tmp', 'layouts'), name = 'theme')
       FileUtils.mkpath(path)
-      open(File.join(path, name), 'w') do |fp|
-        fp.write decode(doc.to_html)
+      open(File.join(path, "#{name}.html.erb"), 'w') do |fp|
+        fp.write decode(@doc.to_html)
       end
     end
 
