@@ -5,28 +5,35 @@ require "rails"
 module Themenap
   class Config
     class << self
-      attr_accessor :dummy
+      attr_accessor :server, :server_path, :layout_name, :snippets
     end
+    Themenap::Config.server = 'http://www.gavrog.org'
+    Themenap::Config.server_path = ''
+    Themenap::Config.layout_name = 'theme'
+    Themenap::Config.snippets =
+      [ { :css => 'title', :text => '<%= yield :title %>' },
+        { :css => 'body', :text => '<%= yield %>' } ]
   end
 
   class Engine < Rails::Engine
-    initializer 'themenap.configure' do |app|
-      Themenap::Config.dummy = 'test'
-    end
-
     initializer 'themenap.set_view_path' do |app|
       ActionController::Base.append_view_path(File.join(Rails.root, 'tmp'))
     end
 
     config.to_prepare do
-      server = 'http://testada'
+      server      = Themenap::Config.server
+      layout_name = Themenap::Config.layout_name
       begin
-        Themenap::Nap.new(server).
-          replace('title',   '<%= yield :title %>').
-          #append('head',     '<%= render "layout/includes" %>').
-          replace('article', '<%= yield %>').
-          write_to(File.join('tmp', 'layouts'))
-        ApplicationController.layout 'theme'
+        theme = Themenap::Nap.new(server, Themenap::Config.server_path)
+        for snip in Themenap::Config.snippets
+          if snip[:append]
+            theme.append(snip[:css], snip[:text])
+          else
+            theme.replace(snip[:css], snip[:text])
+          end
+          theme.write_to(File.join('tmp', 'layouts'), layout_name)
+        end
+        ApplicationController.layout layout_name
       rescue
         Rails.logger.error("Couldn't load theme from #{server}.")
         ApplicationController.layout 'themenap'
