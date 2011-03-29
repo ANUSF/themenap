@@ -34,9 +34,9 @@ module Themenap
       self
     end
 
-    def set_id(css, text)
+    def setattr(css, key, value)
       @doc.css(css).each do |node|
-        node['id'] = text
+        node[key] = value
       end
       self
     end

@@ -31,7 +31,8 @@ module Themenap
             case (snip[:mode] || :replace).to_sym
             when :append  then theme.append(snip[:css], snip[:text])
             when :replace then theme.replace(snip[:css], snip[:text])
-            when :set_id  then theme.set_id(snip[:css], snip[:text])
+            when :setattr
+              theme.setattr(snip[:css], snip[:key], snip[:value])
             end
             theme.write_to(File.join('tmp', 'layouts'), layout_name)
           end
