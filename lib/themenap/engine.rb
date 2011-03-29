@@ -28,10 +28,10 @@ module Themenap
         begin
           theme = Themenap::Nap.new(server, Themenap::Config.server_path)
           for snip in Themenap::Config.snippets
-            if snip[:append]
-              theme.append(snip[:css], snip[:text])
-            else
-              theme.replace(snip[:css], snip[:text])
+            case (snip[:mode] || :replace).to_sym
+            when :append  then theme.append(snip[:css], snip[:text])
+            when :replace then theme.replace(snip[:css], snip[:text])
+            when :set_id  then theme.set_id(snip[:css], snip[:text])
             end
             theme.write_to(File.join('tmp', 'layouts'), layout_name)
           end

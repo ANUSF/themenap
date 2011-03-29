@@ -34,6 +34,13 @@ module Themenap
       self
     end
 
+    def set_id(css, text)
+      @doc.css(css).each do |node|
+        node['id'] = text
+      end
+      self
+    end
+
     def write_to(path = File.join('tmp', 'layouts'), name = 'theme')
       FileUtils.mkpath(path)
       open(File.join(path, "#{name}.html.erb"), 'w') do |fp|
