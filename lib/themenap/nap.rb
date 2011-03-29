@@ -3,7 +3,7 @@ require 'nokogiri'
 module Themenap
   class Nap
     def initialize(server_base, server_path = '')
-      server_uri = server_base + '/' + server_path.sub(/^\//, '')
+      server_uri = server_base + '/' + (server_path || '').sub(/^\//, '')
 
       # -- grab the HTML page from the server and parse it
       @doc = Nokogiri::HTML fetch(server_uri)
@@ -12,7 +12,10 @@ module Themenap
       ['src', 'href'].each do |attr|
         @doc.css("*[#{attr}]").each do |node|
           link = node[attr]
-          node[attr] = "#{server_base}#{link}" if link.start_with? '/'
+          #TODO parse the link properly
+          unless link =~ /^https?:\/\//
+            node[attr] = "#{server_base}/#{link.sub(/^\//, '')}"
+          end
         end
       end
     end
