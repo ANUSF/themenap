@@ -5,8 +5,9 @@ require "rails"
 module Themenap
   class Config
     class << self
-      attr_accessor :server, :server_path, :layout_name, :snippets
+      attr_accessor :active, :server, :server_path, :layout_name, :snippets
     end
+    Themenap::Config.active = true
     Themenap::Config.server = 'http://www.gavrog.org'
     Themenap::Config.server_path = ''
     Themenap::Config.layout_name = 'theme'
@@ -21,22 +22,24 @@ module Themenap
     end
 
     config.to_prepare do
-      server      = Themenap::Config.server
-      layout_name = Themenap::Config.layout_name
-      begin
-        theme = Themenap::Nap.new(server, Themenap::Config.server_path)
-        for snip in Themenap::Config.snippets
-          if snip[:append]
-            theme.append(snip[:css], snip[:text])
-          else
-            theme.replace(snip[:css], snip[:text])
+      if Themenap::Config.active
+        server      = Themenap::Config.server
+        layout_name = Themenap::Config.layout_name
+        begin
+          theme = Themenap::Nap.new(server, Themenap::Config.server_path)
+          for snip in Themenap::Config.snippets
+            if snip[:append]
+              theme.append(snip[:css], snip[:text])
+            else
+              theme.replace(snip[:css], snip[:text])
+            end
+            theme.write_to(File.join('tmp', 'layouts'), layout_name)
           end
-          theme.write_to(File.join('tmp', 'layouts'), layout_name)
+          ApplicationController.layout layout_name
+        rescue
+          Rails.logger.error("Couldn't load theme from #{server}.")
+          ApplicationController.layout 'themenap'
         end
-        ApplicationController.layout layout_name
-      rescue
-        Rails.logger.error("Couldn't load theme from #{server}.")
-        ApplicationController.layout 'themenap'
       end
     end
   end
