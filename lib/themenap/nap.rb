@@ -1,4 +1,5 @@
 require 'nokogiri'
+require 'net/http'
 
 module Themenap
   class Nap

@@ -37,8 +37,8 @@ module Themenap
             theme.write_to(File.join('tmp', 'layouts'), layout_name)
           end
           ApplicationController.layout layout_name
-        rescue
-          Rails.logger.error("Couldn't load theme from #{server}.")
+        rescue Exception => ex
+          Rails.logger.error "Couldn't load theme from #{server} - #{ex}"
           ApplicationController.layout 'themenap'
         end
       end
