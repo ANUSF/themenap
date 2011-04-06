@@ -25,6 +25,7 @@ module Themenap
       if Themenap::Config.active
         server      = Themenap::Config.server
         layout_name = Themenap::Config.layout_name
+        layout_path = File.join('tmp', 'layouts')
         begin
           theme = Themenap::Nap.new(server, Themenap::Config.server_path)
           for snip in Themenap::Config.snippets
@@ -34,11 +35,14 @@ module Themenap
             when :setattr
               theme.setattr(snip[:css], snip[:key], snip[:value])
             end
-            theme.write_to(File.join('tmp', 'layouts'), layout_name)
+            theme.write_to(layout_path, layout_name)
           end
-          ApplicationController.layout layout_name
         rescue Exception => ex
           Rails.logger.error "Couldn't load theme from #{server} - #{ex}"
+        end
+        if theme.exists?(layout_path, layout_name)
+          ApplicationController.layout layout_name
+        else
           ApplicationController.layout 'themenap'
         end
       end

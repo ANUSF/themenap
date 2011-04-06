@@ -49,6 +49,10 @@ module Themenap
       end
     end
 
+    def exists?(path = File.join('tmp', 'layouts'), name = 'theme')
+      File.exist? File.join(path, "#{name}.html.erb")
+    end
+
     protected
     def decode(s)
       s.gsub(/\{\{/, '<%').gsub(/\}\}/, '%>')
