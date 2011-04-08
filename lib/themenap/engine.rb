@@ -40,7 +40,7 @@ module Themenap
         rescue Exception => ex
           Rails.logger.error "Couldn't load theme from #{server} - #{ex}"
         end
-        if theme.exists?(layout_path, layout_name)
+        if theme and theme.exists?(layout_path, layout_name)
           ApplicationController.layout layout_name
         else
           ApplicationController.layout 'themenap'
