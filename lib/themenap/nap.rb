@@ -1,5 +1,5 @@
 require 'nokogiri'
-require 'net/http'
+require 'httparty'
 
 module Themenap
   class Nap
@@ -7,7 +7,7 @@ module Themenap
       server_uri = server_base + '/' + (server_path || '').sub(/^\//, '')
 
       # -- grab the HTML page from the server and parse it
-      @doc = Nokogiri::HTML fetch(server_uri)
+      @doc = Nokogiri::HTML HTTParty.get(server_uri)
 
       # -- globalize links contained in the document
       ['src', 'href'].each do |attr|
@@ -60,27 +60,6 @@ module Themenap
 
     def encode(s)
       s.gsub(/<%/, '{{').gsub(/%>/, '}}')
-    end
-
-    def fetch(uri_str, limit = 10)
-      raise 'HTTP redirect too deep' if limit == 0
-
-      uri = URI.parse(uri_str)
-      http = Net::HTTP.new(uri.host, uri.port)
-      http.use_ssl = uri.port == 443
-
-      unless Themenap::Config.verify_ssl
-        http.verify_mode = OpenSSL::SSL::VERIFY_NONE
-      end
-
-      response = http.request(Net::HTTP::Get.new(uri.request_uri))
-
-      case response
-      when Net::HTTPSuccess     then response.body
-      when Net::HTTPRedirection then fetch(response['location'], limit - 1)
-      else
-        response.error!
-      end
     end
   end
 end

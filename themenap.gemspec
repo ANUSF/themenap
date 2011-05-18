@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'themenap'
-  s.version     = '0.1.0'
+  s.version     = '0.1.1'
   s.platform    = Gem::Platform::RUBY
   s.authors     = ['Olaf Delgado-Friedrichs', 'ANUSF']
   s.email       = ['olaf.delgado-friedrichs@anu.edu.au']
@@ -10,6 +10,7 @@ Gem::Specification.new do |s|
   s.require_path = 'lib'
 
   s.add_dependency 'nokogiri'
+  s.add_dependency 'httparty'
 
   s.summary     = "A Rails engine that 'steals' another application's theme."
   s.description = %q{
