@@ -5,11 +5,13 @@ require "rails"
 module Themenap
   class Config
     class << self
-      attr_accessor :active, :server, :server_path, :layout_name, :snippets
+      attr_accessor :active, :server, :server_path, :verify_ssl, :layout_name,
+                    :snippets
     end
     Themenap::Config.active = true
     Themenap::Config.server = 'http://www.gavrog.org'
     Themenap::Config.server_path = ''
+    Themenap::Config.verify_ssl = true
     Themenap::Config.layout_name = 'theme'
     Themenap::Config.snippets =
       [ { :css => 'title', :text => '<%= yield :title %>' },

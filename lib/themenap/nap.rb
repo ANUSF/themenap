@@ -65,7 +65,16 @@ module Themenap
     def fetch(uri_str, limit = 10)
       raise 'HTTP redirect too deep' if limit == 0
 
-      response = Net::HTTP.get_response(URI.parse(uri_str))
+      uri = URI.parse(uri_str)
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.use_ssl = uri.port == 443
+
+      unless Themenap::Config.verify_ssl
+        http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+      end
+
+      response = http.request(Net::HTTP::Get.new(uri.request_uri))
+
       case response
       when Net::HTTPSuccess     then response.body
       when Net::HTTPRedirection then fetch(response['location'], limit - 1)
