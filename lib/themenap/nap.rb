@@ -37,19 +37,19 @@ module Themenap
 
     def setattr(css, key, value)
       @doc.css(css).each do |node|
-        node[key] = value
+        node[key] = encode(value)
       end
       self
     end
 
-    def write_to(path = File.join('tmp', 'layouts'), name = 'theme')
+    def write_to(path, name)
       FileUtils.mkpath(path)
       open(File.join(path, "#{name}.html.erb"), 'w') do |fp|
         fp.write decode(@doc.to_html)
       end
     end
 
-    def exists?(path = File.join('tmp', 'layouts'), name = 'theme')
+    def exists?(path, name)
       File.exist? File.join(path, "#{name}.html.erb")
     end
 
