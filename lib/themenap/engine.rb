@@ -43,6 +43,7 @@ module Themenap
         case (snip[:mode] || :replace).to_sym
         when :append  then theme.append(snip[:css], snip[:text])
         when :replace then theme.replace(snip[:css], snip[:text])
+        when :remove then theme.remove(snip[:css])
         when :setattr
           theme.setattr(snip[:css], snip[:key], snip[:value])
         end

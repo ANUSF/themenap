@@ -63,6 +63,11 @@ module Themenap
       self
     end
 
+    def remove(css)
+      @doc.css(css).remove
+      self
+    end
+
     def write_to(path, name)
       FileUtils.mkpath(path)
       open(File.join(path, "#{name}.html.erb"), 'w') do |fp|
