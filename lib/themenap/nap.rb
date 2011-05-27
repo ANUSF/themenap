@@ -1,6 +1,6 @@
 require 'nokogiri'
 require 'httparty'
-require 'highline/import'
+require 'highline'
 
 module Themenap
   class Server
@@ -20,8 +20,9 @@ module Themenap
       server_uri = server_base + '/' + (server_path || '').sub(/^\//, '')
       if Themenap::Config.use_basic_auth
         puts "HTTP authentication needed for #{server_uri}"
-        user = ask("User: ")
-        pass = ask("Password: ") { |q| q.echo = '*' }
+        h = HighLine.new
+        user = h.ask("User: ")
+        pass = h.ask("Password: ") { |q| q.echo = '*' }
         server = Server.new user, pass
       else
         server = Server.new
