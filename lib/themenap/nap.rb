@@ -1,6 +1,7 @@
 require 'nokogiri'
 require 'httparty'
 require 'highline'
+require 'themenap/config'
 
 module Themenap
   class Server
@@ -87,6 +88,28 @@ module Themenap
 
     def encode(s)
       s.gsub(/<%/, '{{').gsub(/%>/, '}}')
+    end
+  end
+
+  def nap
+    server      = Themenap::Config.server
+    layout_name = Themenap::Config.layout_name
+    layout_path =
+      File.join Themenap::Config.layout_root, Themenap::Config.layout_path
+    begin
+      theme = Themenap::Nap.new(server, Themenap::Config.server_path)
+      for snip in Themenap::Config.snippets
+        case (snip[:mode] || :replace).to_sym
+        when :append  then theme.append(snip[:css], snip[:text])
+        when :replace then theme.replace(snip[:css], snip[:text])
+        when :remove then theme.remove(snip[:css])
+        when :setattr
+          theme.setattr(snip[:css], snip[:key], snip[:value])
+        end
+        theme.write_to(layout_path, layout_name)
+      end
+    rescue Exception => ex
+      puts "Couldn't load theme from #{server} - #{ex}"
     end
   end
 end
