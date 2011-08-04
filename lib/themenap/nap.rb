@@ -30,7 +30,7 @@ module Themenap
       end
 
       # -- grab the HTML page from the server and parse it
-      @doc = Nokogiri::HTML server.get server_uri
+      @doc = Nokogiri::HTML server.get server_uri, :limit => 10
 
       # -- globalize links contained in the document
       ['src', 'href'].each do |attr|
