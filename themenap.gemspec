@@ -1,6 +1,6 @@
 Gem::Specification.new do |s|
   s.name        = 'themenap'
-  s.version     = '0.1.6'
+  s.version     = '0.1.7'
   s.platform    = Gem::Platform::RUBY
   s.authors     = ['Olaf Delgado-Friedrichs', 'ANUSF']
   s.email       = ['olaf.delgado-friedrichs@anu.edu.au']

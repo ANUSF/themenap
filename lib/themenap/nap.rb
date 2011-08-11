@@ -33,7 +33,7 @@ module Themenap
       @doc = Nokogiri::HTML server.get server_uri, :limit => 10
 
       # -- globalize links contained in the document
-      ['src', 'href'].each do |attr|
+      ['src', 'href', 'action'].each do |attr|
         @doc.css("*[#{attr}]").each do |node|
           link = node[attr]
           #TODO parse the link properly
